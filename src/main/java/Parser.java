@@ -1,3 +1,4 @@
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -14,24 +15,40 @@ import java.util.regex.Pattern;
  * Created by Аглиуллины on 03.09.2017.
  */
 public class Parser {
-    private String bufferFilePath = "/home/ratmir/buffer.dat";
+    private String bufferFilePath = "buffer.dat";// "/home/ratmir/buffer.dat";
     public Integer likesCount = 0;
     public Integer repostCount = 0;
 
     public String getPostId(int index, Document document) {
         String result = null;
 
-        Element element = document.select("div._post.post.page_block.all.own").get(index);
-        result = element.id();
+        Element element = document.select("div.feed.h-mod").get(index);
+     //   result = element.id();
+        result=element.getElementsByAttribute("data-seen-params").get(0).toString();
         return result;
     }
 
-    public String getPostText(int index, Document document) {
-        Element element = document.select("div._post.post.page_block.all.own").get(index);
-        Elements in = element.getElementsByClass("wall_post_text");
-        String result = in.get(0).text();
 
-        return result;
+
+    public static void main(String[] args) {
+        Parser parser = new Parser();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(ConfigManager.getURL()).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(parser.getPostText(4, doc));
+    }
+
+
+
+    public String getPostText(int index, Document document) {
+        Element element = document.select("div.media-status").get(index);
+        Elements in = element.getElementsByClass("media-text_cnt");
+       String result = in.get(0).text();
+
+        return element.toString();
 
     }
 
@@ -136,5 +153,6 @@ public class Parser {
         BufferedReader myfile = new BufferedReader(new FileReader(bufferFilePath));
         return myfile.readLine();
     }
+
 
 }
