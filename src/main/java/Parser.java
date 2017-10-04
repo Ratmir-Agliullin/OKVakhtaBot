@@ -23,8 +23,7 @@ public class Parser {
         String result = null;
 
         Element element = document.select("div.feed.h-mod").get(index);
-     //   result = element.id();
-        result=element.getElementsByAttribute("data-seen-params").get(0).toString();
+        result=element.attr("data-seen-params");
         return result;
     }
 
@@ -38,39 +37,58 @@ public class Parser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(parser.getPostText(4, doc));
+        System.out.println(parser.getPostId(2, doc));
+        System.out.println(parser.getPostText(2, doc));
+        parser.getPostImages(2,doc).stream().forEach(s-> System.out.println(s));
+        System.out.println(parser.getLinkWithMoreText(2, doc));
     }
 
+public String getLinkWithMoreText(int index, Document document){
+    Element element = document.select("div.media-status").get(index);
+    Elements in = element.getElementsByClass("media_more");
+    String result=null;
+    try {
+        Elements hrefs = in.get(0).getElementsByTag("a");
+        result=hrefs.get(0).attr("href");
+    }
+    catch (IndexOutOfBoundsException e)
+    {
+        result = " ";
+    }
+    return result;
+}
 
-
-    public String getPostText(int index, Document document) {
+    public String getPostText(int index, Document document) { //IndexOutOfBoundsException сделать чтобы читал полный текст
         Element element = document.select("div.media-status").get(index);
         Elements in = element.getElementsByClass("media-text_cnt");
-       String result = in.get(0).text();
-
-        return element.toString();
+       String result = null;
+       try {
+           result = in.get(0).text();
+       }
+       catch (IndexOutOfBoundsException e)
+       {
+           result = " ";
+       }
+        return result;
 
     }
 
     public List<String> getPostImages(int index, Document document) {
         String result = null;
         List<String> imageList = new ArrayList<>();
-        Elements elements = document.select("div._post.post.page_block.all.own");
-        Element postContent = elements.get(index).getElementsByClass("_post_content").get(0);
-        Elements in = postContent.getElementsByTag("a");
+        Elements elements = document.select("div.media-status");
+        try{
+        Element postContent = elements.get(index).getElementsByClass("image-hover").get(0);
+        Elements in = postContent.getElementsByTag("img");
+
         for (Element el : in
                 ) {
-            Attributes attributes = el.attributes();
-            List<Attribute> attributeList = attributes.asList();
-            attributeList.stream().forEach(a -> {
-                Pattern pattern = Pattern.compile("url\\((.*?)\\)");
-                Matcher m = pattern.matcher(a.getValue());
-                if (m.find()) {
-                    String imageLink = m.group(0).substring(4, m.group(0).length() - 1);
-                   imageList.add(imageLink);
-                }
-            });
 
+            imageList.add(el.attr("src").substring(2));
+
+        }}
+        catch (IndexOutOfBoundsException e){
+            imageList.add(" ");
         }
         return imageList;
     }
@@ -83,25 +101,7 @@ public class Parser {
     }
 
 
-    public void getCountsLikesAndReposts(int index, Document document) {
 
-        Elements elements = document.select("div._post.post.page_block.all.own");
-        Element likesInfo = elements.get(index).getElementsByClass("_post_content").get(0)
-                .getElementsByClass("post_content").get(0)
-                .getElementsByClass("post_info").get(0)
-                .getElementsByClass("post_full_like_wrap").get(0)
-                .getElementsByClass("post_like_count").get(0);
-        likesCount = Integer.valueOf(likesInfo.text());
-        System.out.println(likesCount);
-
-        Element repostInfo = elements.get(index).getElementsByClass("_post_content").get(0)
-                .getElementsByClass("post_content").get(0)
-                .getElementsByClass("post_info").get(0)
-                .getElementsByClass("post_full_like_wrap").get(0)
-                .getElementsByClass("post_share_count").get(0);
-        repostCount = Integer.valueOf(repostInfo.text());
-        System.out.println(repostCount);
-    }
 
 
     public String getVideoPostFormIndex(int index, Document document) {
@@ -135,11 +135,6 @@ public class Parser {
         return result;
     }
 
-    public void getFirstFivePosts(Document document) {
-        Elements elements = document.select("div._post.post.page_block.all.own");
-        for (int i = 0; i < 5; i++)
-            System.out.println(elements.get(i).text());
-    }
 
 
     public void writeStringInFile(String in) throws IOException {
