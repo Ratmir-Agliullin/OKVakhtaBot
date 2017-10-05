@@ -27,6 +27,9 @@ public class Parser {
         return result;
     }
 
+//https://ok.ru/udivitelnyymir
+//https://ok.ru/1tv
+    //https://ok.ru/paradpob
 
 
     public static void main(String[] args) {
@@ -37,10 +40,11 @@ public class Parser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(parser.getPostId(2, doc));
-        System.out.println(parser.getPostText(2, doc));
-        parser.getPostImages(2,doc).stream().forEach(s-> System.out.println(s));
-        System.out.println(parser.getLinkWithMoreText(2, doc));
+        System.out.println(parser.getPostId(1, doc));
+        System.out.println(parser.getPostText(1, doc));
+        parser.getGifsImages(1,doc).stream().forEach(s-> System.out.println(s));
+        System.out.println(parser.getLinkWithMoreText(1, doc));
+        System.out.println(parser.getVideoPostFromIndex(1, doc));
     }
 
 public String getLinkWithMoreText(int index, Document document){
@@ -55,7 +59,7 @@ public String getLinkWithMoreText(int index, Document document){
     {
         result = " ";
     }
-    return result;
+    return "https://ok.ru"+result;
 }
 
     public String getPostText(int index, Document document) { //IndexOutOfBoundsException сделать чтобы читал полный текст
@@ -72,6 +76,30 @@ public String getLinkWithMoreText(int index, Document document){
         return result;
 
     }
+
+
+    public List<String> getGifsImages(int index, Document document) {
+        String result = null;
+        List<String> imageList = new ArrayList<>();
+        Elements elements = document.select("div.media-status");
+        try {
+            Element postContent = elements.get(index).getElementsByClass("gif").get(0);
+               Elements in = postContent.getElementsByTag("div");
+           // imageList.add(postContent.toString());
+            for (Element el : in
+                    ) {
+
+                imageList.add(el.attr("data-mp4src").substring(2));
+
+            }
+        }
+        catch (IndexOutOfBoundsException e){
+            imageList.add(" ");
+        }
+        return imageList;
+    }
+
+
 
     public List<String> getPostImages(int index, Document document) {
         String result = null;
@@ -94,33 +122,21 @@ public String getLinkWithMoreText(int index, Document document){
     }
 
 
-    public void getTextPostFormIndex(int index, Document document) {
-        Elements elements = document.select("div._post.post.page_block.all.own");
-        Element wallText = elements.get(index).getElementsByClass("wall_post_text").get(0);
-        System.out.println(wallText.text());
-    }
-
-
-
-
-
-    public String getVideoPostFormIndex(int index, Document document) {
+    public String getVideoPostFromIndex(int index, Document document) {
         String result = null;
-        Elements elements = document.select("div._post.post.page_block.all.own");
-        Element wallVideo = null;
-        try {
-            wallVideo = elements.get(index).getElementsByClass("_post_content").get(0)
-                    .getElementsByClass("post_content").get(0)
-                    .getElementsByClass("post_info").get(0)
-                    .getElementsByClass("wall_text").get(0)
-                    .getElementsByClass("post_video_desc")
-                    .get(0);
+        String wallVideo=null;
+        List<String> imageList = new ArrayList<>();
+        Elements elements = document.select("div.media-status");
+        try{
+            Element postContent = elements.get(index).getElementsByClass("media-video").get(0);
+          Elements in = postContent.getElementsByTag("div");
+            wallVideo =in.attr("data-l");
+
         } catch (IndexOutOfBoundsException e) {
             return " ";
-        }
-        result = parsingWihRegex(wallVideo.toString(), "href=\"\\/video(.*?)\\\"", 6, 1);
-        //  System.out.println("https://vk.com"+result);
-        return "https://vk.com" + result;
+       }
+        result = parsingWihRegex(wallVideo.toString(), "ti,(.*?),t", 3, 2);
+        return "https://ok.ru/video/" + result;
     }
 
     public String parsingWihRegex(String input, String regex, int start, int end) {

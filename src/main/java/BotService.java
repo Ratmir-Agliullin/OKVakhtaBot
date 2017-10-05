@@ -22,7 +22,7 @@ public class BotService {
         }
         parser.getPostImages(0, doc);
         String result = parser.getPostText(0, doc) + "\n" +
-                parser.getVideoPostFormIndex(0, doc) + lineFromList(parser, doc);
+                parser.getVideoPostFromIndex(0, doc) + lineFromList(parser, doc);
 
         System.out.println(result);
         return result;
