@@ -11,7 +11,7 @@ public class ConfigManager {
    // private static Properties properties;
     private static Properties Init(){
         Properties properties=null;
-        File configFile = new File("src/main/resources/config.properties");
+        File configFile = new File("/home/ratmir/OK1tvBot/config.properties");
 
         try {
             FileReader reader = new FileReader(configFile);
@@ -39,6 +39,9 @@ public class ConfigManager {
     public static String getBotToken(){
         return Init().getProperty("botToken");
     }
+    public static Integer getTimeOut(){
+        Integer val =  Integer.valueOf(Init().getProperty("timeout"));
+        return val*1000;}
 
 
 //    public static void main(String[] args) {
