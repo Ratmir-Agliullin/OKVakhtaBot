@@ -10,7 +10,7 @@ import java.util.Properties;
 public class ConfigManager {
    // private static Properties properties;
     private static Properties Init(){
-        Properties properties=null;
+        Properties properties=null;///home/ratmir/OK1tvBot/config.properties
         File configFile = new File("/home/ratmir/OK1tvBot/config.properties");
 
         try {
